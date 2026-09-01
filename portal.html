@@ -12,44 +12,47 @@
 
   <!-- Nav -->
   <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-    <a href="index.html" class="text-red-500 font-bold flex items-center gap-2 text-sm hover:text-red-400 transition">
-      <i class="fa-solid fa-arrow-left"></i> Homepage
+    <a href="index.html" class="text-red-500 font-bold flex items-center gap-2 text-sm hover:text-red-400">
+      <i class="fa-solid fa-arrow-left"></i> Home
     </a>
-    <h1 class="font-bold text-base sm:text-lg">Cadet Directory</h1>
-    <a href="admin.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
-      <i class="fa-solid fa-lock mr-1"></i> Admin
-    </a>
+    <h1 class="font-bold text-sm sm:text-base tracking-wide">Cadet Directory & Records</h1>
+    <div class="flex items-center gap-3">
+      <a href="admin.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
+        <i class="fa-solid fa-shield-halved mr-1"></i> Admin
+      </a>
+      <button onclick="handleLogout()" class="text-xs bg-red-950 text-red-400 border border-red-800/60 hover:bg-red-900 px-3 py-1.5 rounded-lg">
+        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+      </button>
+    </div>
   </nav>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow">
-    <!-- Filter Bar -->
-    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 mb-8 flex flex-col md:flex-row gap-4">
-      <div class="flex-grow relative">
-        <i class="fa-solid fa-search absolute left-4 top-3 text-slate-500 text-sm"></i>
-        <input type="text" id="searchInput" placeholder="Search by name, ID, rank, role..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-11 pr-4 py-2 text-sm focus:outline-none focus:border-red-500 text-white">
-      </div>
-      <div class="flex gap-2">
-        <select id="platoonFilter" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none">
-          <option value="ALL">All Platoons</option>
-          <option value="Boys Platoon">Boys Platoon</option>
-          <option value="Girls Platoon">Girls Platoon</option>
-          <option value="Band Platoon">Band Platoon</option>
-          <option value="Ex-Cadets">Ex-Cadets</option>
-        </select>
-        <select id="bloodFilter" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none">
-          <option value="ALL">All Blood</option>
-          <option value="A+">A+</option>
-          <option value="B+">B+</option>
-          <option value="O+">O+</option>
-          <option value="AB+">AB+</option>
-        </select>
-      </div>
+    <!-- Platoon Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-800 pb-4">
+      <button id="tab-ALL" onclick="setPlatoon('ALL')" class="tab-btn bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition">All Platoons</button>
+      <button id="tab-BoysPlatoon" onclick="setPlatoon('Boys Platoon')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🎖️ Boys Platoon</button>
+      <button id="tab-GirlsPlatoon" onclick="setPlatoon('Girls Platoon')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🌺 Girls Platoon</button>
+      <button id="tab-BandPlatoon" onclick="setPlatoon('Band Platoon')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🥁 Band Platoon</button>
+      <button id="tab-Ex-Cadets" onclick="setPlatoon('Ex-Cadets')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🎓 Ex-Cadets</button>
     </div>
 
-    <!-- Cards Grid -->
-    <div id="cadetGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <!-- Loaded automatically via app.js -->
+    <!-- Search & Blood Filter -->
+    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 mb-8 flex flex-col sm:flex-row gap-4">
+      <div class="flex-grow relative">
+        <i class="fa-solid fa-search absolute left-4 top-3 text-slate-500 text-sm"></i>
+        <input type="text" id="searchInput" oninput="renderCadets()" placeholder="Search cadet by English/Bangla name, ID..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-11 pr-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+      </div>
+      <select id="bloodFilter" onchange="renderCadets()" class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-xs sm:text-sm text-slate-200">
+        <option value="ALL">All Blood Groups</option>
+        <option value="A+">A+</option>
+        <option value="B+">B+</option>
+        <option value="O+">O+</option>
+        <option value="AB+">AB+</option>
+      </select>
     </div>
+
+    <!-- Cadets Grid -->
+    <div id="cadetGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
   </main>
 
   <script src="app.js"></script>
