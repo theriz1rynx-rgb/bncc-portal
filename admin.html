@@ -3,101 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Control | BNCC Portal</title>
+  <title>Admin Control | BNCC Unit</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 sm:p-6 font-sans">
   
-  <div class="max-w-3xl mx-auto">
-    <!-- Security Lock Screen -->
+  <div class="max-w-4xl mx-auto">
+    <!-- PIN Screen -->
     <div id="authScreen" class="bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center mt-20 max-w-md mx-auto shadow-2xl">
       <div class="w-12 h-12 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-xl mb-4 border border-red-500/30">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
       <h2 class="text-xl font-bold mb-1">Admin Security PIN</h2>
-      <p class="text-xs text-slate-400 mb-6">Enter master PIN (Default: 7860)</p>
-      <input type="password" id="pinInput" placeholder="Enter PIN" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-lg tracking-widest mb-4 text-white focus:border-red-500 focus:outline-none">
-      <button onclick="unlockAdmin()" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold transition text-white">Unlock Admin Editor</button>
-      <div class="mt-4">
-        <a href="index.html" class="text-xs text-slate-400 hover:text-white">Back to Home</a>
-      </div>
+      <p class="text-xs text-slate-400 mb-6">Enter master PIN (7860)</p>
+      <input type="password" id="pinInput" placeholder="PIN" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-lg tracking-widest mb-4 text-white focus:outline-none">
+      <button onclick="unlockAdmin()" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold transition text-white">Unlock Editor</button>
+      <div class="mt-4"><a href="index.html" class="text-xs text-slate-400">Back to Home</a></div>
     </div>
 
-    <!-- Visual Form Screen -->
-    <div id="editorScreen" class="hidden bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl">
-      <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-        <div>
-          <h2 class="text-xl font-bold text-white">Add / Manage Cadet</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Insert live records straight to Supabase database</p>
+    <!-- Main Admin Screen -->
+    <div id="editorScreen" class="hidden space-y-8">
+      
+      <!-- 1. Add Cadet Record -->
+      <div class="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl">
+        <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-user-plus text-red-500 mr-2"></i>Add Cadet Record</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Directly registers into Supabase</p>
+          </div>
+          <a href="portal.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300">View Portal</a>
         </div>
-        <a href="portal.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300">Open Portal</a>
+
+        <form id="cadetForm" class="space-y-4">
+          <!-- Cadet Drag & Drop Area -->
+          <div id="cadetDropZone" class="border-2 border-dashed border-slate-700 hover:border-red-500 rounded-2xl p-5 text-center cursor-pointer bg-slate-950/60 transition">
+            <input type="file" id="cadetPhotoInput" accept="image/*" class="hidden">
+            <img id="cadetPhotoPreview" class="hidden w-20 h-20 rounded-full mx-auto object-cover mb-2 border border-red-500">
+            <p class="text-xs text-slate-300 font-medium"><i class="fa-solid fa-cloud-arrow-up text-red-500 mr-1.5"></i> Drag & Drop Cadet Photo, or <span class="text-red-400 underline">Browse</span></p>
+            <span class="text-[10px] text-slate-500">JPG, PNG supported</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Platoon Category</label>
+              <select id="f_platoon" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+                <option value="Boys Platoon">Boys Platoon</option>
+                <option value="Girls Platoon">Girls Platoon</option>
+                <option value="Band Platoon">Band Platoon</option>
+                <option value="Ex-Cadets">Ex-Cadets</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Cadet ID</label>
+              <input type="text" id="f_cadet_no" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="25310136">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Full Name (English)</label>
+              <input type="text" id="f_name_en" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="Mir Rizwan Ahmmed">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Full Name (Bangla)</label>
+              <input type="text" id="f_name_bn" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="মীর রিজওয়ান আহম্মেদ">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Rank</label>
+              <input type="text" id="f_rank" placeholder="Cadet / LCPL / CPL / SGT" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Gender</label>
+              <select id="f_gender" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Blood Group</label>
+              <input type="text" id="f_blood" placeholder="B+, O+, A+" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Phone</label>
+              <input type="text" id="f_phone" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="+880 13...">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Email</label>
+              <input type="email" id="f_email" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="email@gmail.com">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Current Role / Status</label>
+              <input type="text" id="f_status" placeholder="Parade In-Charge / Student" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Camps Attended</label>
+            <input type="text" id="f_camps" placeholder="Battalion Camp 2024, Central Camp" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Special Skills / Roles</label>
+            <textarea id="f_achievements" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="Designer, IT In-Charge"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold transition text-white shadow-lg shadow-red-900/30">
+            Save Cadet to Database
+          </button>
+        </form>
       </div>
 
-      <form id="cadetForm" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Platoon Category</label>
-            <select id="f_platoon" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
-              <option value="Boys Platoon">Boys Platoon</option>
-              <option value="Girls Platoon">Girls Platoon</option>
-              <option value="Band Platoon">Band Platoon</option>
-              <option value="Ex-Cadets">Ex-Cadets</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Cadet ID / Number</label>
-            <input type="text" id="f_cadet_no" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. 25310136">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Full Name (English)</label>
-            <input type="text" id="f_name_en" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. Mir Rizwan Ahmmed">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Full Name (Bangla)</label>
-            <input type="text" id="f_name_bn" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. মীর রিজওয়ান আহম্মেদ">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Rank</label>
-            <input type="text" id="f_rank" placeholder="e.g. Cadet, LCPL, CPL, SGT" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Gender</label>
-            <select id="f_gender" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Blood Group</label>
-            <input type="text" id="f_blood" placeholder="e.g. B+, O+, A+" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Phone</label>
-            <input type="text" id="f_phone" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="+880 13...">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Email</label>
-            <input type="email" id="f_email" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="email@gmail.com">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 font-medium">Current Role / Status / Institute</label>
-            <input type="text" id="f_status" placeholder="e.g. Parade In-Charge / BUET, IPE" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
-          </div>
+      <!-- 2. Publish Blog Section -->
+      <div class="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl">
+        <div class="mb-6 border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-pen-nib text-red-500 mr-2"></i>Publish Blog / Experience Story</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Post stories and camp experiences directly to the homepage</p>
         </div>
-        <div>
-          <label class="text-xs text-slate-400 font-medium">Camps Attended</label>
-          <input type="text" id="f_camps" placeholder="e.g. Battalion Camp 2024, Central Camp" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
-        </div>
-        <div>
-          <label class="text-xs text-slate-400 font-medium">Achievements / Skills</label>
-          <textarea id="f_achievements" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. Best Drill, Designer, IT In-Charge"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold transition text-white shadow-lg shadow-red-900/30">
-          Save Record to Database
-        </button>
-      </form>
+
+        <form id="blogForm" class="space-y-4">
+          <!-- Blog Drag & Drop -->
+          <div id="blogDropZone" class="border-2 border-dashed border-slate-700 hover:border-red-500 rounded-2xl p-5 text-center cursor-pointer bg-slate-950/60 transition">
+            <input type="file" id="blogPhotoInput" accept="image/*" class="hidden">
+            <img id="blogPhotoPreview" class="hidden h-28 w-full max-w-sm rounded-xl mx-auto object-cover mb-2 border border-red-500">
+            <p class="text-xs text-slate-300 font-medium"><i class="fa-solid fa-image text-red-500 mr-1.5"></i> Drag & Drop Blog Cover Photo, or <span class="text-red-400 underline">Browse</span></p>
+            <span class="text-[10px] text-slate-500">Attach camp or parade photos</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2">
+              <label class="text-xs text-slate-400 font-medium">Blog Title</label>
+              <input type="text" id="b_title" required placeholder="e.g. My Central Camp Experience 2026" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 font-medium">Category</label>
+              <input type="text" id="b_category" placeholder="Camp, Drill, Achievement" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Author Name & Rank</label>
+            <input type="text" id="b_author" required placeholder="e.g. LCPL Mir Rizwan Ahmmed" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Article Story / Content</label>
+            <textarea id="b_content" rows="4" required placeholder="Write the full experience or article details here..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-red-500 py-3 rounded-xl font-bold transition text-white">
+            Publish Blog to Website
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
 
