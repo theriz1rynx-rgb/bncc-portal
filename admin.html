@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Control | BNCC Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 sm:p-6 font-sans">
+  
+  <div class="max-w-3xl mx-auto">
+    <!-- Security Lock Screen -->
+    <div id="authScreen" class="bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center mt-20 max-w-md mx-auto shadow-2xl">
+      <div class="w-12 h-12 bg-red-600/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-xl mb-4 border border-red-500/30">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2 class="text-xl font-bold mb-1">Admin Security PIN</h2>
+      <p class="text-xs text-slate-400 mb-6">Enter master PIN (Default: 7860)</p>
+      <input type="password" id="pinInput" placeholder="Enter PIN" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-lg tracking-widest mb-4 text-white focus:border-red-500 focus:outline-none">
+      <button onclick="unlockAdmin()" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold transition text-white">Unlock Admin Editor</button>
+      <div class="mt-4">
+        <a href="index.html" class="text-xs text-slate-400 hover:text-white">Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Visual Form Screen -->
+    <div id="editorScreen" class="hidden bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl">
+      <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-xl font-bold text-white">Add / Manage Cadet</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Insert live records straight to Supabase database</p>
+        </div>
+        <a href="portal.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300">Open Portal</a>
+      </div>
+
+      <form id="cadetForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Platoon Category</label>
+            <select id="f_platoon" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+              <option value="Boys Platoon">Boys Platoon</option>
+              <option value="Girls Platoon">Girls Platoon</option>
+              <option value="Band Platoon">Band Platoon</option>
+              <option value="Ex-Cadets">Ex-Cadets</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Cadet ID / Number</label>
+            <input type="text" id="f_cadet_no" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. 25310136">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Full Name (English)</label>
+            <input type="text" id="f_name_en" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. Mir Rizwan Ahmmed">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Full Name (Bangla)</label>
+            <input type="text" id="f_name_bn" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. মীর রিজওয়ান আহম্মেদ">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Rank</label>
+            <input type="text" id="f_rank" placeholder="e.g. Cadet, LCPL, CPL, SGT" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Gender</label>
+            <select id="f_gender" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Blood Group</label>
+            <input type="text" id="f_blood" placeholder="e.g. B+, O+, A+" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Phone</label>
+            <input type="text" id="f_phone" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="+880 13...">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Email</label>
+            <input type="email" id="f_email" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="email@gmail.com">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 font-medium">Current Role / Status / Institute</label>
+            <input type="text" id="f_status" placeholder="e.g. Parade In-Charge / BUET, IPE" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 font-medium">Camps Attended</label>
+          <input type="text" id="f_camps" placeholder="e.g. Battalion Camp 2024, Central Camp" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 font-medium">Achievements / Skills</label>
+          <textarea id="f_achievements" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm mt-1 text-white" placeholder="e.g. Best Drill, Designer, IT In-Charge"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold transition text-white shadow-lg shadow-red-900/30">
+          Save Record to Database
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
