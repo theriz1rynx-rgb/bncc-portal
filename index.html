@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BNCC Unit Portal | Knowledge, Discipline, Volunteer</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-red-600 selection:text-white">
@@ -17,14 +18,12 @@
           BNCC
         </div>
         <div>
-          <span class="font-bold text-base sm:text-lg tracking-wide block leading-none">BNCC UNIT</span>
+          <span class="font-bold text-sm sm:text-base tracking-wide block leading-none">BNCC UNIT</span>
           <span class="text-[11px] text-slate-400 block mt-1">New Govt. Degree College, Rajshahi</span>
         </div>
       </div>
-      <div class="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="#about" class="hover:text-red-400 transition">About</a>
-        <a href="#notices" class="hover:text-red-400 transition">Notices</a>
-        <a href="#officers" class="hover:text-red-400 transition">Officers</a>
+      <div class="flex items-center gap-4 text-xs sm:text-sm font-medium">
+        <a href="#blogs" class="hover:text-red-400 transition hidden sm:inline">Blogs</a>
         <a href="portal.html" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition shadow-md font-semibold">Cadet Portal</a>
         <a href="login.html" class="border border-slate-700 hover:border-slate-500 px-3.5 py-2 rounded-xl transition text-slate-300">Sign In</a>
       </div>
@@ -32,109 +31,43 @@
   </nav>
 
   <!-- Hero Section -->
-  <header class="relative py-24 px-4 sm:px-6 text-center bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border-b border-slate-800">
+  <header class="py-20 px-4 text-center bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border-b border-slate-800">
     <div class="max-w-4xl mx-auto space-y-6">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 bg-red-950/70 border border-red-800/60 rounded-full text-red-400 text-xs font-semibold tracking-wider uppercase">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 bg-red-950/70 border border-red-800/60 rounded-full text-red-400 text-xs font-semibold uppercase tracking-wider">
         <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
         Knowledge • Discipline • Volunteer
       </div>
-      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
         Bangladesh National Cadet Corps
       </h1>
-      <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-        Fostering youth leadership, physical excellence, and humanitarian service under the 31 BNCC Battalion (Mohasthangarh Regiment).
+      <p class="text-slate-400 text-xs sm:text-base max-w-2xl mx-auto leading-relaxed">
+        31 BNCC Battalion • Mohasthangarh Regiment • New Govt. Degree College, Rajshahi
       </p>
-      <div class="flex flex-wrap justify-center gap-4 pt-4">
-        <a href="portal.html" class="px-7 py-3 bg-red-600 hover:bg-red-700 font-semibold rounded-xl transition shadow-xl shadow-red-900/40 text-white">
-          <i class="fa-solid fa-users mr-2"></i> Explore Cadet Directory
-        </a>
-        <a href="#notices" class="px-7 py-3 bg-slate-900 hover:bg-slate-800 font-semibold rounded-xl border border-slate-700 transition text-slate-200">
-          <i class="fa-solid fa-bullhorn mr-2"></i> Latest Notices
+      <div class="flex flex-wrap justify-center gap-4 pt-2">
+        <a href="portal.html" class="px-6 py-3 bg-red-600 hover:bg-red-700 font-semibold rounded-xl transition shadow-xl shadow-red-900/40 text-white text-sm">
+          <i class="fa-solid fa-users mr-2"></i> Access Cadet Directory
         </a>
       </div>
     </div>
   </header>
 
-  <!-- Notice Section -->
-  <section id="notices" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 w-full">
+  <!-- Blog / News Section -->
+  <section id="blogs" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 w-full">
     <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
       <div>
-        <h2 class="text-2xl font-bold text-white">Official Notice Board</h2>
-        <p class="text-xs text-slate-400 mt-1">Parade instructions, central camp updates and unit orders</p>
-      </div>
-      <a href="portal.html" class="text-xs text-red-400 hover:underline">View All</a>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition">
-        <div class="flex items-center gap-2 text-xs font-semibold text-red-400 mb-2">
-          <i class="fa-regular fa-calendar"></i> Regular Schedule
-        </div>
-        <h3 class="text-base font-bold text-white">Regular Drill, Uniform & Physical Evaluation</h3>
-        <p class="text-xs text-slate-400 mt-1 leading-relaxed">All active cadets of Boys, Girls, and Band Platoons are required to assemble in complete operational uniform.</p>
-      </div>
-      <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition">
-        <div class="flex items-center gap-2 text-xs font-semibold text-blue-400 mb-2">
-          <i class="fa-regular fa-calendar"></i> Training Capsule
-        </div>
-        <h3 class="text-base font-bold text-white">Fire Service & Civil Defense Capsule Camp</h3>
-        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Specialized disaster management and fire safety training workshop registration open for 2026.</p>
+        <h2 class="text-xl sm:text-2xl font-bold text-white"><i class="fa-solid fa-newspaper text-red-500 mr-2"></i>Unit Stories & Articles</h2>
+        <p class="text-xs text-slate-400 mt-1">Camps, drills, and achievements written by our cadets</p>
       </div>
     </div>
-  </section>
-
-  <!-- Teachers & Officers Section -->
-  <section id="officers" class="py-16 bg-slate-900/40 border-t border-b border-slate-800/60">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="text-center max-w-xl mx-auto mb-12">
-        <h2 class="text-2xl sm:text-3xl font-bold text-white">Professors & Officers In-Charge</h2>
-        <p class="text-xs text-slate-400 mt-2">Guiding our cadets with honor, command, and institutional pride</p>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center hover:border-red-900/50 transition">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 border-2 border-red-600 flex items-center justify-center text-3xl text-slate-400">
-            <i class="fa-solid fa-user-tie"></i>
-          </div>
-          <h3 class="text-base font-bold text-white">Professor In-Charge</h3>
-          <p class="text-xs text-red-400 font-semibold tracking-wide uppercase mt-0.5">PUO / BPO</p>
-          <p class="text-xs text-slate-400 mt-2">New Govt. Degree College, Rajshahi</p>
-        </div>
-        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center hover:border-red-900/50 transition">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 border-2 border-red-600 flex items-center justify-center text-3xl text-slate-400">
-            <i class="fa-solid fa-person-military-pointing"></i>
-          </div>
-          <h3 class="text-base font-bold text-white">Cadet Under Officer (CUO)</h3>
-          <p class="text-xs text-red-400 font-semibold tracking-wide uppercase mt-0.5">Unit Senior Cadet</p>
-          <p class="text-xs text-slate-400 mt-2">31 BNCC Battalion</p>
-        </div>
-      </div>
-    </div>
+    <!-- Live Blog Grid -->
+    <div id="blogsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
   </section>
 
   <!-- Footer -->
-  <footer class="mt-auto bg-slate-950 border-t border-slate-800/80 py-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div>
-        <h4 class="font-bold text-white text-sm mb-2">BNCC UNIT</h4>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Building leadership, national discipline, and dedicated volunteerism among youth cadets.
-        </p>
-      </div>
-      <div>
-        <h4 class="font-bold text-white text-sm mb-2">Navigation</h4>
-        <ul class="space-y-1.5 text-xs text-slate-400">
-          <li><a href="portal.html" class="hover:text-red-400 transition">Cadet Directory</a></li>
-          <li><a href="login.html" class="hover:text-red-400 transition">Cadet Login</a></li>
-          <li><a href="admin.html" class="hover:text-red-400 transition">Admin Access</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-bold text-white text-sm mb-2">Official Contact</h4>
-        <p class="text-xs text-slate-400"><i class="fa-solid fa-location-dot mr-2"></i> Rajshahi, Bangladesh</p>
-        <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-envelope mr-2"></i> theriz1rynx@gmail.com</p>
-      </div>
-    </div>
+  <footer class="mt-auto bg-slate-950 border-t border-slate-800 py-8 text-center text-xs text-slate-500">
+    <p>© 2026 BNCC Unit • All Rights Reserved</p>
   </footer>
 
+  <script src="app.js"></script>
 </body>
 </html>
