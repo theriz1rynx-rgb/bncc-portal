@@ -3,58 +3,340 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadet Directory | BNCC Portal</title>
+  <title>NGDC BNCC Dashboard</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- FontAwesome & SheetJS (Excel Export) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background-color: #fff !important; }
+      .shadow-sm, .shadow-md { box-shadow: none !important; }
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-[#f4f7fb] text-slate-800 font-sans min-h-screen">
 
-  <!-- Nav -->
-  <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-    <a href="index.html" class="text-red-500 font-bold flex items-center gap-2 text-sm hover:text-red-400">
-      <i class="fa-solid fa-arrow-left"></i> Home
-    </a>
-    <h1 class="font-bold text-sm sm:text-base tracking-wide">Cadet Directory & Records</h1>
+  <!-- Top Dark Navbar -->
+  <header class="bg-[#111927] text-white px-4 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 no-print">
     <div class="flex items-center gap-3">
-      <a href="admin.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
-        <i class="fa-solid fa-shield-halved mr-1"></i> Admin
-      </a>
-      <button onclick="handleLogout()" class="text-xs bg-red-950 text-red-400 border border-red-800/60 hover:bg-red-900 px-3 py-1.5 rounded-lg">
-        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+      <div class="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black text-sm shadow">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <h1 class="font-extrabold text-sm sm:text-base tracking-wide flex items-center gap-2">
+          NGDC BNCC Dashboard
+        </h1>
+        <p class="text-[11px] text-slate-400">New Govt. Degree College, Rajshahi</p>
+      </div>
+      <!-- Status Badges -->
+      <div class="hidden sm:flex items-center gap-2 ml-3">
+        <span id="modeBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700">
+          <i class="fa-solid fa-eye text-blue-400 mr-1"></i> View Only
+        </span>
+        <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 font-medium border border-emerald-800/40">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1"></span> Synced with Supabase
+        </span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2">
+      <!-- Editor Auth Controls -->
+      <div id="viewModeControls">
+        <button onclick="openPinModal()" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+          <i class="fa-solid fa-lock"></i> Editor Login
+        </button>
+      </div>
+      <div id="editModeControls" class="hidden flex items-center gap-2">
+        <button onclick="exitEditMode()" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+          <i class="fa-solid fa-right-from-bracket"></i> Exit Edit Mode
+        </button>
+        <button onclick="openCadetModal()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+          <i class="fa-solid fa-user-plus"></i> Add Cadet
+        </button>
+      </div>
+
+      <button onclick="exportToExcel()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+        <i class="fa-solid fa-file-excel"></i> Export
+      </button>
+      <button onclick="window.print()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-2 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
+        <i class="fa-solid fa-print"></i> Print
       </button>
     </div>
-  </nav>
+  </header>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow">
-    <!-- Platoon Tabs -->
-    <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-800 pb-4">
-      <button id="tab-ALL" onclick="setPlatoon('ALL')" class="tab-btn bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition">All Platoons</button>
-      <button id="tab-BoysPlatoon" onclick="setPlatoon('Boys Platoon')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🎖️ Boys Platoon</button>
-      <button id="tab-GirlsPlatoon" onclick="setPlatoon('Girls Platoon')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🌺 Girls Platoon</button>
-      <button id="tab-BandPlatoon" onclick="setPlatoon('Band Platoon')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🥁 Band Platoon</button>
-      <button id="tab-Ex-Cadets" onclick="setPlatoon('Ex-Cadets')" class="tab-btn bg-slate-900 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">🎓 Ex-Cadets</button>
-    </div>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-    <!-- Search & Blood Filter -->
-    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 mb-8 flex flex-col sm:flex-row gap-4">
-      <div class="flex-grow relative">
-        <i class="fa-solid fa-search absolute left-4 top-3 text-slate-500 text-sm"></i>
-        <input type="text" id="searchInput" oninput="renderCadets()" placeholder="Search cadet by English/Bangla name, ID..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-11 pr-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+    <!-- Counter Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 no-print">
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Total Strength</span>
+          <span id="countTotal" class="text-xl font-extrabold text-slate-800">0</span>
+        </div>
       </div>
-      <select id="bloodFilter" onchange="renderCadets()" class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-xs sm:text-sm text-slate-200">
-        <option value="ALL">All Blood Groups</option>
-        <option value="A+">A+</option>
-        <option value="B+">B+</option>
-        <option value="O+">O+</option>
-        <option value="AB+">AB+</option>
-      </select>
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-person"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Boys Platoon</span>
+          <span id="countBoys" class="text-xl font-extrabold text-slate-800">0</span>
+        </div>
+      </div>
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-person-dress"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Girls Platoon</span>
+          <span id="countGirls" class="text-xl font-extrabold text-slate-800">0</span>
+        </div>
+      </div>
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-drum"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Band Platoon</span>
+          <span id="countBand" class="text-xl font-extrabold text-slate-800">0</span>
+        </div>
+      </div>
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 col-span-2 sm:col-span-1">
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Ex-Cadets</span>
+          <span id="countEx" class="text-xl font-extrabold text-slate-800">0</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Cadets Grid -->
-    <div id="cadetGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    <!-- Filter Buttons Bar -->
+    <div class="flex flex-wrap items-center gap-2 no-print">
+      <button onclick="filterWing('ALL')" id="tab-ALL" class="wing-btn bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">All Platoons & Wings</button>
+      <button onclick="filterWing('Boys Platoon')" id="tab-BoysPlatoon" class="wing-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">Boys Platoon</button>
+      <button onclick="filterWing('Girls Platoon')" id="tab-GirlsPlatoon" class="wing-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">Girls Platoon</button>
+      <button onclick="filterWing('Band Platoon')" id="tab-BandPlatoon" class="wing-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">Band Platoon</button>
+      <button onclick="filterWing('Ex-Cadets')" id="tab-Ex-Cadets" class="wing-btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">🎓 Ex-Cadets</button>
+    </div>
+
+    <!-- Search & Secondary Filter Box -->
+    <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-sm flex flex-col md:flex-row items-center gap-3 no-print">
+      <div class="relative flex-grow w-full">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+        <input type="text" id="filterSearch" oninput="renderAllSections()" placeholder="Search by name, cadet no, rank, role, appointment, camp, address..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-500">
+      </div>
+      <div class="flex items-center gap-2 w-full md:w-auto">
+        <select id="filterRank" onchange="renderAllSections()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700 focus:outline-none flex-1 md:flex-none">
+          <option value="ALL">All Ranks (Present & Ex)</option>
+          <option value="Cadet">Cadet</option>
+          <option value="LCPL">Lance Corporal (LCPL)</option>
+          <option value="CPL">Corporal (CPL)</option>
+          <option value="SGT">Sergeant (SGT)</option>
+          <option value="CUO">Cadet Under Officer (CUO)</option>
+          <option value="Ex-Cadet">Ex-Cadet</option>
+        </select>
+        <select id="filterBlood" onchange="renderAllSections()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700 focus:outline-none flex-1 md:flex-none">
+          <option value="ALL">All Blood</option>
+          <option value="A+">A+</option>
+          <option value="A-">A-</option>
+          <option value="B+">B+</option>
+          <option value="B-">B-</option>
+          <option value="O+">O+</option>
+          <option value="O-">O-</option>
+          <option value="AB+">AB+</option>
+          <option value="AB-">AB-</option>
+        </select>
+        <button onclick="clearFilters()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold transition">Clear</button>
+      </div>
+    </div>
+
+    <!-- SECTIONS: 4 Platoons -->
+    <div class="space-y-6">
+      
+      <!-- 1. Boys Platoon -->
+      <section id="section-boys" class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-person"></i>
+            </div>
+            <div>
+              <h2 class="font-extrabold text-sm sm:text-base text-slate-800 leading-tight">Boys Platoon</h2>
+              <p class="text-[11px] text-slate-400">Rank Hierarchy & Cadet No Sorted</p>
+            </div>
+          </div>
+          <span id="badge-boys" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full border border-slate-200">0 Cadets</span>
+        </div>
+        <div id="grid-boys" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- 2. Girls Platoon -->
+      <section id="section-girls" class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-pink-600 text-white flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-person-dress"></i>
+            </div>
+            <div>
+              <h2 class="font-extrabold text-sm sm:text-base text-slate-800 leading-tight">Girls Platoon</h2>
+              <p class="text-[11px] text-slate-400">Rank Hierarchy & Cadet No Sorted</p>
+            </div>
+          </div>
+          <span id="badge-girls" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full border border-slate-200">0 Cadets</span>
+        </div>
+        <div id="grid-girls" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- 3. Band Platoon -->
+      <section id="section-band" class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-drum"></i>
+            </div>
+            <div>
+              <h2 class="font-extrabold text-sm sm:text-base text-slate-800 leading-tight">Band Platoon</h2>
+              <p class="text-[11px] text-slate-400">Rank Hierarchy & Cadet No Sorted</p>
+            </div>
+          </div>
+          <span id="badge-band" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full border border-slate-200">0 Cadets</span>
+        </div>
+        <div id="grid-band" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- 4. Ex-Cadets -->
+      <section id="section-ex" class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div>
+              <h2 class="font-extrabold text-sm sm:text-base text-slate-800 leading-tight">Ex-Cadets</h2>
+              <p class="text-[11px] text-slate-400">Rank Hierarchy & Cadet No Sorted</p>
+            </div>
+          </div>
+          <span id="badge-ex" class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-full border border-emerald-200">0 Alumni / Ex-Cadets</span>
+        </div>
+        <div id="grid-ex" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+    </div>
   </main>
 
+  <!-- ================= PIN AUTH MODAL ================= -->
+  <div id="pinModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl mb-4 font-bold">
+        <i class="fa-solid fa-key"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800">Editor Authentication</h3>
+      <p class="text-xs text-slate-500 mt-1 mb-5">Enter Master PIN to enable full editing privileges</p>
+      <input type="password" id="pinCodeInput" placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-4 text-center text-xl font-bold tracking-widest text-slate-800 focus:outline-none focus:border-amber-500 mb-4">
+      <div class="flex gap-2">
+        <button onclick="closePinModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold text-xs">Cancel</button>
+        <button onclick="verifyPin()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 py-2.5 rounded-xl font-bold text-xs">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADD / EDIT CADET MODAL ================= -->
+  <div id="cadetModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl my-8">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-5">
+        <div>
+          <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-slate-800">Add New Cadet</h3>
+          <p class="text-xs text-slate-400">Save directly to Supabase cloud database</p>
+        </div>
+        <button onclick="closeCadetModal()" class="text-slate-400 hover:text-slate-600 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="modalCadetForm" onsubmit="saveCadetForm(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="f_id">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-600">Platoon / Wing *</label>
+            <select id="f_platoon" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+              <option value="Boys Platoon">Boys Platoon</option>
+              <option value="Girls Platoon">Girls Platoon</option>
+              <option value="Band Platoon">Band Platoon</option>
+              <option value="Ex-Cadets">Ex-Cadets</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Cadet No / ID *</label>
+            <input type="text" id="f_cadet_no" required placeholder="e.g. 25310136" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Full Name (English) *</label>
+            <input type="text" id="f_name_en" required placeholder="Mir Rizwan Ahmmed" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Full Name (Bangla)</label>
+            <input type="text" id="f_name_bn" placeholder="মীর রিজওয়ান আহম্মেদ" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Rank *</label>
+            <input type="text" id="f_rank" required placeholder="Cadet / LCPL / CPL / SGT / Ex-Cadet" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Gender *</label>
+            <select id="f_gender" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Blood Group</label>
+            <input type="text" id="f_blood" placeholder="e.g. B+, O+, A+" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Phone Number</label>
+            <input type="text" id="f_phone" placeholder="017xxxxxxxx" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Email Address</label>
+            <input type="email" id="f_email" placeholder="example@gmail.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600">Address / Location</label>
+            <input type="text" id="f_address" placeholder="Rajshahi, Bangladesh" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-600">Current Role / Student Status / Professional Info</label>
+          <input type="text" id="f_status" placeholder="e.g. Student at NGDC / Journalist at bdnews24" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white">
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-600">Achievements & Camps</label>
+          <textarea id="f_camps" rows="2" placeholder="Central Camp 2025, Best Cadet Award..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 mt-1 focus:bg-white"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeCadetModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold">Cancel</button>
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow">Save Cadet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- App Script -->
   <script src="app.js"></script>
 </body>
 </html>
